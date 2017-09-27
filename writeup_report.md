@@ -28,10 +28,6 @@ The goals / steps of this project are the following:
 [image14]: ./writeup_files/green_area_unwarped.png "Green area over unwarped image"
 [image15]: ./writeup_files/final_output_transform.png "Final output transform"
 [image16]: ./writeup_files/final_image.png "Final output image"
-[image17]: ./writeup_files/.png " "
-[image18]: ./writeup_files/.png " "
-[image19]: ./writeup_files/.png " "
-[image20]: ./writeup_files/.png " "
 [video1]: ./project_video.mp4 "Video"
 
 ---
@@ -40,7 +36,7 @@ The goals / steps of this project are the following:
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The code for this step is contained in the code cells of the subsection "Calibration Images" of the IPython notebook located in "./code.ipynb". The subsection uses some functions developed in the section "Camera Calibration Functions", located in the beginning of the file.
+The code for this step is contained in the code cells of the subsection "Calibration Images" of the IPython notebook located in [./code.ipynb]. The subsection uses some functions developed in the section "Camera Calibration Functions", located in the beginning of the file.
 
 I started by using a random calibration image from the calibration examples. For example, here, we have the image *calibration2.jpg*, from *camera_cal* folder.
 
@@ -101,7 +97,7 @@ vertices_dst = np.float32(
 )
 ```
 
-This resulted in the following source and destination points. The results are based in ROI points *(Pipeline line 11-14)*:
+This resulted in the following source and destination points. 
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
@@ -110,14 +106,18 @@ This resulted in the following source and destination points. The results are ba
 | 730, 450      | 730, 450      |
 | 1100, 700     | 730, 700      |
 
+I warped the original image, following the source and destination points *(Pipeline line 11-14)*:
+
 ![Warp Image][image7]
+
+Then I cropped the image in the ROI points *(Pipeline line 11-14)*:
 
 ![Warp Image and crop of ROI][image8]
 
 
 #### 3. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I croped my ROI in the image, then I convert the color to HSL (hue, saturation, lightness). *(Pipeline line 5)*
+I changed the croped image from RGB color space to HSL (hue, saturation, lightness) color space. *(Pipeline line 5)*
 
 ![HSL ROI Image][image9]
 
@@ -127,7 +127,7 @@ I ignored the Hue and Lightness of the output image and keep only the Saturation
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+I did a polynomial function, the same as Udacity tutorial, and fit my lane lines with a 2nd order polynomial kinda like this:
 
 ![Plot 2nd order polynomial][image11]
 
@@ -135,11 +135,11 @@ Then I ploted the polynomial over the warped image *(Pipeline line 17)*.
 
 ![Polynomial plot over warped image][image12]
 
-Next, I draw a green area over my polynomial plot and my ROI *(Pipeline line 20-30)*.
+Next, I draw a green area inside the combination of my polynomial plot and my ROI *(Pipeline line 20-30)*.
 
 ![Green area over warped image][image13]
 
-Then, I unwarped the green area image and returned to the original model *(Pipeline line 32)*.
+Then, I unwarped the green area image and returned to the original image *(Pipeline line 32)*.
 
 ![Green area over unwarped image][image14]
 
@@ -149,9 +149,9 @@ As it sees, in the last image, the unwarped procedure lost some data information
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-To calculate the curvature of the lane, I used the same model that was showed in the Udacity course, with the conversion pixel-meters. The code was available in the `curvature()` function, in the *Calculate Curvature and Relative Positions Functions* subsection.
+To calculate the curvature of the lane, I used the same model that was showed in the Udacity tutorial, with the conversion pixels to meters. The code was available in the `curvature()` function, in the *Calculate Curvature and Relative Positions Functions* subsection.
 
-To calculate the position of vehicle with respect to center, I calculate the mean of `left_fitx` value, mesure the distance to the center of the image and multiply to the constant of conversion pixel-meters. The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection.
+To calculate the position of vehicle with respect to center, I calculate the mean of `left_fitx` value, mesure the distance to the center of the image and multiply to the constant of conversion pixels-meters. The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection.
 
 The code calling for the both custom functions are available in the *Pipeline* function, lines 37-42.
 

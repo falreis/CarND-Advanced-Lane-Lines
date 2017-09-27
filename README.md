@@ -27,7 +27,7 @@ The goals / steps of this project are the following:
 
 My project includes the following files/folders:
 * [code.ipynb](./code.ipynb) containing jupyter notebook file, with the code of this project
-* [/output_images](./output_images/) folde contain all the result image files (calibrations and test images)
+* [/output_images](./output_images/) folder contain all the result image files (calibrations and test images)
 * [output_project_video.mp4](./video.mp4) containing the output video file
 * [writeup_report.md](./writeup_report.md) summarizing the results
 
