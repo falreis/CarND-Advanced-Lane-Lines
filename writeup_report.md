@@ -22,9 +22,16 @@ The goals / steps of this project are the following:
 [image8]: ./writeup_files/warp_roi.png "Warp Image and crop of ROI"
 [image9]: ./writeup_files/hsl.png "HSL ROI Image"
 [image10]: ./writeup_files/s_channel.png "S-Channel Image"
-
-[image11]: ./writeup_files/.png " "
-[image12]: ./writeup_files/.png " "
+[image11]: ./writeup_files/plot_continuous.png "Plot 2nd order polynomial"
+[image12]: ./writeup_files/polynomial_warp.png "Polynomial plot over warped image"
+[image13]: ./writeup_files/green_area_warp.png "Green area over warped image"
+[image14]: ./writeup_files/green_area_unwarped.png "Green area over unwarped image"
+[image15]: ./writeup_files/final_output_transform.png "Final output transform"
+[image16]: ./writeup_files/.png " "
+[image17]: ./writeup_files/.png " "
+[image18]: ./writeup_files/.png " "
+[image19]: ./writeup_files/.png " "
+[image20]: ./writeup_files/.png " "
 [video1]: ./project_video.mp4 "Video"
 
 ---
@@ -110,17 +117,33 @@ This resulted in the following source and destination points. The results are ba
 
 I croped my ROI in the image, then I convert the color to HSL (hue, saturation, lightness)
 
-![HSL ROI Image][image7]
+![HSL ROI Image][image9]
 
 I ignored the Hue and Lightness of the output image and keep only the Saturation (S) channel. I used a combination of color and gradient thresholds to generate a binary image.
 
-![S-Channel Image][image8]
+![S-Channel Image][image10]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
 Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
 
-![alt text][image5]
+![Plot 2nd order polynomial][image11]
+
+Then I ploted the polynomial over the warped image.
+
+![Polynomial plot over warped image][image12]
+
+Next, I draw a green area over my polynomial plot and my ROI.
+
+![Green area over warped image][image13]
+
+Then, I unwarped the green area image and returned to the original model.
+
+![Green area over unwarped image][image14]
+
+As it sees, in the last image, the unwarped procedure lost some data information. Then, I combine the unwarped green image with the original image and recovery some data out of my region of interest, making final output transform.
+
+![Final output transform][image15]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
