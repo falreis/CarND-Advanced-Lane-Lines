@@ -24,10 +24,10 @@ The goals / steps of this project are the following:
 [image10]: ./writeup_files/s_channel.png "S-Channel Image"
 [image11]: ./writeup_files/plot_continuous.png "Plot 2nd order polynomial"
 [image12]: ./writeup_files/polynomial_warp.png "Polynomial plot over warped image"
-[image13]: ./writeup_files/green_area_warp.png "Green area over warped image"
+[image13]: ./writeup_files/green_area_warped.png "Green area over warped image"
 [image14]: ./writeup_files/green_area_unwarped.png "Green area over unwarped image"
 [image15]: ./writeup_files/final_output_transform.png "Final output transform"
-[image16]: ./writeup_files/.png " "
+[image16]: ./writeup_files/final_image.png "Final output image"
 [image17]: ./writeup_files/.png " "
 [image18]: ./writeup_files/.png " "
 [image19]: ./writeup_files/.png " "
@@ -69,6 +69,8 @@ I used the `cv2.getPerspectiveTransform` and `cv2.warpPerspective` to do that.
 
 ### Pipeline (single images)
 
+The pipeline code is available in function `pipeline()`, in the *Pipeline* subsection.
+
 #### 1. Provide an example of a distortion-corrected image.
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
@@ -76,12 +78,12 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 
 #### 2. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-Firstly, it was necessary to define a region of interests (ROI), cropping everything that I don't need in the image. 
+Firstly, it was necessary to define a region of interests (ROI), cropping everything that I don't need in the image *(Pipeline line 6-7)*. 
 
 ![Region of Interest (ROI) of the image][image6]
 
 Then, I proceded the code for my perspective transform includes a function called `warp_transform()`, which appears in the section *Warp Transform Functions*
-(output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warp_transform()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+(output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warp_transform()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner *(Warp transform subsection - line 1-13)*:
 
 ```python
 vertices_src = np.float32(
@@ -99,7 +101,7 @@ vertices_dst = np.float32(
 )
 ```
 
-This resulted in the following source and destination points. The results are based in ROI points:
+This resulted in the following source and destination points. The results are based in ROI points *(Pipeline line 11-14)*:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
@@ -115,11 +117,11 @@ This resulted in the following source and destination points. The results are ba
 
 #### 3. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I croped my ROI in the image, then I convert the color to HSL (hue, saturation, lightness)
+I croped my ROI in the image, then I convert the color to HSL (hue, saturation, lightness). *(Pipeline line 5)*
 
 ![HSL ROI Image][image9]
 
-I ignored the Hue and Lightness of the output image and keep only the Saturation (S) channel. I used a combination of color and gradient thresholds to generate a binary image.
+I ignored the Hue and Lightness of the output image and keep only the Saturation (S) channel. I used a combination of color and gradient thresholds to generate a binary image. *(Pipeline line 9)*
 
 ![S-Channel Image][image10]
 
@@ -129,31 +131,35 @@ Then I did some other stuff and fit my lane lines with a 2nd order polynomial ki
 
 ![Plot 2nd order polynomial][image11]
 
-Then I ploted the polynomial over the warped image.
+Then I ploted the polynomial over the warped image *(Pipeline line 17)*.
 
 ![Polynomial plot over warped image][image12]
 
-Next, I draw a green area over my polynomial plot and my ROI.
+Next, I draw a green area over my polynomial plot and my ROI *(Pipeline line 20-30)*.
 
 ![Green area over warped image][image13]
 
-Then, I unwarped the green area image and returned to the original model.
+Then, I unwarped the green area image and returned to the original model *(Pipeline line 32)*.
 
 ![Green area over unwarped image][image14]
 
-As it sees, in the last image, the unwarped procedure lost some data information. Then, I combine the unwarped green image with the original image and recovery some data out of my region of interest, making final output transform.
+As it sees, in the last image, the unwarped procedure lost some data information. Then, I combine the unwarped green image with the original image and recovery some data out of my region of interest, making final output transform *(Pipeline line 35)*.
 
 ![Final output transform][image15]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+To calculate the curvature of the lane, I used the same model that was showed in the Udacity course, with the conversion pixel-meters. The code was available in the `curvature()` function, in the *Calculate Curvature and Relative Positions Functions* subsection.
+
+To calculate the position of vehicle with respect to center, I calculate the mean of `left_fitx` value, mesure the distance to the center of the image and multiply to the constant of conversion pixel-meters. The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection.
+
+The code calling for the both custom functions are available in the *Pipeline* function, lines 37-42.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+The final image of *Pipeline* function can be seen below.
 
-![alt text][image6]
+![Final output image][image16]
 
 ---
 
@@ -161,7 +167,7 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./output_project_video.mp4)
 
 ---
 
