@@ -12,14 +12,18 @@ The goals / steps of this project are the following:
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
 [//]: # (Image References)
-
-
-[image1]: ./camera_cal/calibration2.jpg "Original calibration image"
+[image1]: ./writeup_files/calibration2.jpg "Original calibration image"
 [image2]: ./writeup_files/chessboard.png "Find chessboard corners"
 [image3]: ./writeup_files/calibrate_undistort.png "Calibrate and undistort image"
 [image4]: ./writeup_files/warped_cal.png "Calibration image warp"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
+[image5]: ./writeup_files/undistort_image.png "Undistort and original image"
+[image6]: ./writeup_files/roi.png "Region of Interest (ROI) of the image"
+[image7]: ./writeup_files/hsl.png "HSL ROI Image"
+[image8]: ./writeup_files/s_channel.png "S-Channel Image"
+[image9]: ./writeup_files/.png " "
+[image10]: ./writeup_files/.png " "
+[image11]: ./writeup_files/.png " "
+[image12]: ./writeup_files/.png " "
 [video1]: ./project_video.mp4 "Video"
 
 ---
@@ -60,9 +64,21 @@ I used the `cv2.getPerspectiveTransform` and `cv2.warpPerspective` to do that.
 #### 1. Provide an example of a distortion-corrected image.
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-![alt text][image2]
+!["Undistort and original image"][image5]
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
+
+* I defined a region of interests (ROI), cropping everything that I don't need in the image. 
+
+![Region of Interest (ROI) of the image][image6]
+
+* I croped my ROI in the image, then I convert the color to HSL (hue, saturation, lightness)
+
+![HSL ROI Image][image7]
+
+* I ignored the Hue and Lightness of the output image and keep only the Saturation (S) channel.
+
+![S-Channel Image][image8]
 
 I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
 
