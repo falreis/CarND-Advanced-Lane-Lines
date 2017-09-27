@@ -176,3 +176,22 @@ Here's a [link to my video result](./output_project_video.mp4)
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
 Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+
+##### Development procedures and issues that I faced in my implementation
+
+To make the project, I started trying to calibrate the camera and writing some functions, that can be usefull in other situations.
+
+Then, I made the images transformations. The most difficult procedure was to warp the image, get the S channel and the mark a green area in my region of interest. 
+
+* The problem was that I transformed the image using the Region of Interest in a image of 720x1280. Then I warped the image and marked my green area. When I unwarped the image back, I lost some information of the picture, resulting in black areas over the original image, not only the green space in my ROI. To recover those information, I tried to fill each pixel outside my ROI (a polygon) with the original image. The result worked, but was too slow.
+* Thinking in other solution, I decided to shrink my destination area in the warp transformation, instead of create a image of 720x1280. Then, I cropped my region of interest and applied some transformation just in this area. Next, I combined my marked green area to the warped image. Finally, I unwarped the combined image. After this procedure, I lost some data just on top of the image, easier to recover then my first approach.
+
+##### Development procedures and problems in development
+The pipeline built has some problems when exist different colors of the road (asphalt), specially when the aspalth is dark and become clear. For example, in the 25th second of the video, the pipeline loose the track for a moment then get back, finding the correct track.
+
+##### Development procedures and problems in development
+One procedure that not worked as I expected was the use of Sobel transform. The sobel transform results mostly in worst results that I could do using only the S channel.
+
+To improve my model, I can use the S channel combined with some other image transformations like Canny or Hough. I can try one more time use Sobel with different thresh.
+
+Other thing that is possible to do is use the continuous lane line to predict the dashed line, based in some dashs, improve the position of the vehicle on track and the 2nd order polynomial.
