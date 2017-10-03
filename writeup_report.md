@@ -19,9 +19,9 @@ The goals / steps of this project are the following:
 [image5]: ./writeup_files/undistort_image.png "Undistort and original image"
 [image6]: ./writeup_files/roi.png "Region of Interest (ROI) of the image"
 [image7]: ./writeup_files/warp_image.png "Warp Image"
-[image8]: ./writeup_files/warp_roi.png "Warp Image and crop of ROI"
-[image9]: ./writeup_files/hsl.png "HSL ROI Image"
-[image10]: ./writeup_files/s_channel.png "S-Channel Image"
+[image8]: ./writeup_files/hsl.png "HSL Warp Image"
+[image9]: ./writeup_files/s_channel.png "Sobel and S-Channel Image"
+[image10]: ./writeup_files/warp_roi.png "Sobel ROI"
 [image11]: ./writeup_files/plot_continuous.png "Plot 2nd order polynomial"
 [image12]: ./writeup_files/polynomial_warp.png "Polynomial plot over warped image"
 [image13]: ./writeup_files/green_area_warped.png "Green area over warped image"
@@ -65,12 +65,12 @@ I used the `cv2.getPerspectiveTransform` and `cv2.warpPerspective` to do that.
 
 ### Pipeline (single images)
 
-The pipeline code is available in function `pipeline()`, in the *Pipeline* subsection.
+The pipeline code is available in `pipeline()` function, in the *Pipeline* subsection.
 
 #### 1. Provide an example of a distortion-corrected image.
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-!["Undistort and original image"][image5]
+![Undistort and original image][image5]
 
 #### 2. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
@@ -106,20 +106,26 @@ I warped the original image, following the source and destination points *(Pipel
 
 ![Warp Image][image7]
 
-Then I cropped the image in the Region of Interests (ROI) points *(Pipeline line 14-16)*. This region contains only the track, and put all information around in black pixel.
-
-![Warp Image and crop of ROI][image8]
-
-
 #### 3. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I changed my ROI image from RGB color space to HSL (hue, saturation, lightness) color space. *(Pipeline line 5)*
+I converted the image from RGB color space to HSL (hue, saturation, lightness) color space. *(Pipeline line 5)*
 
-![HSL ROI Image][image9]
+![HSL Warp Image][image8]
 
-I ignored the Hue and Lightness of the output image and keep only the Saturation (S) channel. I used a combination of color and gradient thresholds to generate a binary image. *(Pipeline line 9)*
+To view the best result after apply a image filter, I tested two algorithms: Sobel and Binary S Channel. In my first approach, I prefered to use Binary S Channel, but the values did not convert to find the lane lines correctly. Then I combined S Channel with Sobel and the results were better, but not good enough. Then I tested only Sobel and the algorithm resulted in a good behavior for different situations. The following picture contain the comparation of S-Channel and Sobel for an image.
 
-![S-Channel Image][image10]
+![S-Channel and Sobel Image][image9]
+
+As Sobel algorithm returned better results, I kept it only. Sobel algorithm uses the following approachs:
+* Directional Thresh
+* Magnitude Thresh
+* ABS Thresh (X direction only)
+
+I tuned the parameters of Sobel algorithm to improve the results. The directional thresh has none or little important in the final resul. The majors thresh were ABS and Mag Thresh. Using ABS Thresh in Y direction, the result was worse then Binary S Channel approach.
+
+To improve the results, I cutted of some parts of the image after apply Sobel algorithm to help the to polynomial function discover the line lanes. The image was cutted near the paralel lane lines to increase the performance and discard some other information that can mislead the algorithm. The results is shown below.
+
+![Sobel ROI][image10]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
@@ -147,7 +153,15 @@ As it sees, in the last image, the unwarped procedure lost some data information
 
 To calculate the curvature of the lane, I used the same model that was showed in the Udacity tutorial, with the conversion pixels to meters. The code was available in the `curvature()` function, in the *Calculate Curvature and Relative Positions Functions* subsection.
 
-To calculate the position of vehicle with respect to center, I calculate the mean of `left_fitx` value, mesure the distance to the center of the image and multiply to the constant of conversion pixels-meters. The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection.
+The curvature was calculated using an intermediary image with the green area marked over. The I used Sobel transformation and did the 2nd order polynomial. To improve the result I chosed the left lane (constant) as the best to approach the result
+
+To calculate the position of vehicle with respect to center, I pick I pixel inside the green area (over **y axis**) and the returned the value for **x axis** in the left and right curve. Then, I multiplied the value of the results by the constant of conversion pixels-meters, as shown in formula below: 
+
+`
+((left_pos) - (1280-right_pos)) * xm_per_pix
+`
+
+The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection.
 
 The code calling for the both custom functions are available in the *Pipeline* function, lines 37-42.
 
@@ -177,17 +191,28 @@ Here I'll talk about the approach I took, what techniques I used, what worked an
 
 To make the project, I started trying to calibrate the camera and writing some functions, that can be usefull in other situations.
 
-Then, I made the images transformations. The most difficult procedure was to warp the image, get the S channel and the mark a green area in my region of interest. 
+Then, I made the images transformations. The most difficult was to developed the right procedure was to warp the image, and get the correct final result for all images. I used many approachs to achieve my goal.
 
-* The problem was that I transformed the image using the Region of Interest in a image of 720x1280. Then I warped the image and marked my green area. When I unwarped the image back, I lost some information of the picture, resulting in black areas over the original image, not only the green space in my ROI. To recover those information, I tried to fill each pixel outside my ROI (a polygon) with the original image. The result worked, but was too slow.
+##### Previous Development procedures
+
+This section contain different approachs that I used but didn't result in correctness.
+
+* First solution was transform the image using the Region of Interest (ROI - part of the original image without warp) in a image of 720x1280. Then I warped the image and marked my green area. When I unwarped the image back, I lost some information of the picture, resulting in black areas over the original image, not only the green space in my ROI. To recover those information, I tried to fill each pixel outside my ROI (a polygon) with the original image. The result worked, but was too slow.
 * Thinking in other solution, I decided to shrink my destination area in the warp transformation, instead of create a image of 720x1280. Then, I cropped my region of interest and applied some transformation just in this area. Next, I combined my marked green area to the warped image. Finally, I unwarped the combined image. After this procedure, I lost some data just on top of the image, easier to recover then my first approach.
+* Other approach that I tried was warp the image before define my Region of Interest. This approach was used in the final output. But, processing the image, I tried many different things, that didn't result well, as:
+	* Use Binary S-Channel;
+	* Use combination of Binary S-Channel and Sobel;
+	* Use Sobel with Y direction ABS transformation;
+	* Crop ROI before applied Sobel;
+	* Do not convert to HSL (combined with all above);
+	* Other approachs mixing all above.
 
 ##### Development procedures and problems in development
-The pipeline built has some problems when exist different colors of the road (asphalt), specially when the aspalth is dark and become clear. For example, in the 25th second of the video, the pipeline loose the track for a moment then get back, finding the correct track.
+The major problem was to process image and remove the noise. I used many approachs as explain in the last section. Some approachs results in closer results and tunning operations cause lot of time spent. I tunned many of aproachs described until I realized that I can't improve the results anymore. These wrong approachs consume most of the development time (many, many, many time).
 
-##### Development procedures and problems in development
-One procedure that not worked as I expected was the use of Sobel transform. The sobel transform results mostly in worst results that I could do using only the S channel.
+##### Increase performance possibilities
+To improve my model, I think I can use the Sobel combined with some other image transformations like Canny or Hough. I can try to tune Sobel parameters with different threshs.
 
-To improve my model, I can use the S channel combined with some other image transformations like Canny or Hough. I can try one more time use Sobel with different thresh.
+One possible improvement is use the continuous lane line to predict the dashed line, based in some dashs, improve the position of the vehicle on track and the 2nd order polynomial.
 
-Other thing that is possible to do is use the continuous lane line to predict the dashed line, based in some dashs, improve the position of the vehicle on track and the 2nd order polynomial.
+Other possible approach is try to detect colors in the image, like yellow and white colors. Then, apply Sobel. This approach helps to find something that I already expect and improve the results of Sobel operation.
