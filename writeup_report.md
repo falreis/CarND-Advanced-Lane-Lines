@@ -74,26 +74,22 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 
 #### 2. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-Firstly, it was necessary to define a region of interests (ROI), cropping everything that I don't need in the image *(Pipeline line 6-7)*. 
-
-![Region of Interest (ROI) of the image][image6]
-
-Then, I proceded the code for my perspective transform includes a function called `warp_transform()`, which appears in the section *Warp Transform Functions*
+I proceded the code for my perspective transform includes a function called `warp_transform()`, which appears in the section *Warp Transform Functions*
 (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warp_transform()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner *(Warp transform subsection - line 1-13)*:
 
 ```python
 vertices_src = np.float32(
-    [[ 270, 700],
-     [ 550, 450],
-     [ 730, 450],
-     [1100, 700]]
+    [[ 120, 720],
+     [ 500, 500],
+     [ 700, 500],
+     [1200, 720]]
 )
 
 vertices_dst = np.float32(
-    [[ 550, 700],
-     [ 550, 450],
-     [ 730, 450],
-     [ 730, 700]]
+    [[ 500, 720],
+     [ 500, 0],
+     [ 620, 0],
+     [ 660, 720]]
 )
 ```
 
@@ -101,23 +97,23 @@ This resulted in the following source and destination points.
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 270, 700      | 550, 700      | 
-| 550, 450      | 550, 450      |
-| 730, 450      | 730, 450      |
-| 1100, 700     | 730, 700      |
+| 120, 720      | 500, 720      | 
+| 500, 500      | 500, 0        |
+| 700, 500      | 620, 0        |
+| 1200, 720     | 660, 720      |
 
-I warped the original image, following the source and destination points *(Pipeline line 11-14)*:
+I warped the original image, following the source and destination points *(Pipeline line 12)*:
 
 ![Warp Image][image7]
 
-Then I cropped the image in the ROI points *(Pipeline line 11-14)*:
+Then I cropped the image in the Region of Interests (ROI) points *(Pipeline line 14-16)*. This region contains only the track, and put all information around in black pixel.
 
 ![Warp Image and crop of ROI][image8]
 
 
 #### 3. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I changed the croped image from RGB color space to HSL (hue, saturation, lightness) color space. *(Pipeline line 5)*
+I changed my ROI image from RGB color space to HSL (hue, saturation, lightness) color space. *(Pipeline line 5)*
 
 ![HSL ROI Image][image9]
 
