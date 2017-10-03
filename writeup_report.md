@@ -69,7 +69,7 @@ The pipeline code is available in `pipeline()` function, in the *Pipeline* subse
 
 #### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one *(Pipeline line 11)*:
 ![Undistort and original image][image5]
 
 #### 2. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
@@ -102,28 +102,28 @@ This resulted in the following source and destination points.
 | 700, 500      | 620, 0        |
 | 1200, 720     | 660, 720      |
 
-I warped the original image, following the source and destination points *(Pipeline line 12)*:
+I warped the original image, following the source and destination points *(Pipeline line 14)*:
 
 ![Warp Image][image7]
 
 #### 3. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I converted the image from RGB color space to HSL (hue, saturation, lightness) color space. *(Pipeline line 5)*
+I converted the image from RGB color space to HSL (hue, saturation, lightness) color space *(Pipeline line 17)*.
 
 ![HSL Warp Image][image8]
 
-To view the best result after apply a image filter, I tested two algorithms: Sobel and Binary S Channel. In my first approach, I prefered to use Binary S Channel, but the values did not convert to find the lane lines correctly. Then I combined S Channel with Sobel and the results were better, but not good enough. Then I tested only Sobel and the algorithm resulted in a good behavior for different situations. The following picture contain the comparation of S-Channel and Sobel for an image.
+To view the best result after apply a image filter, I tested two algorithms: Sobel and Binary S-Channel. In my first approach, I prefered to use Binary S-Channel, but the algorithm didn't find the line lanes correctly. Then I combined S-Channel with Sobel and the results were better, but not good enough. Then I tested Sobel algorihtm alone - this procedure had good results for different situations. The following image contain the comparison of S-Channel and Sobel algorithms.
 
 ![S-Channel and Sobel Image][image9]
 
-As Sobel algorithm returned better results, I kept it only. Sobel algorithm uses the following approachs:
+As Sobel algorithm returned better results, I kept it only *(Pipeline line 24)*. Sobel algorithm uses the following approachs:
 * Directional Thresh
 * Magnitude Thresh
 * ABS Thresh (X direction only)
 
-I tuned the parameters of Sobel algorithm to improve the results. The directional thresh has none or little important in the final resul. The majors thresh were ABS and Mag Thresh. Using ABS Thresh in Y direction, the result was worse then Binary S Channel approach.
+I tuned the parameters of Sobel algorithm to improve the results. The directional thresh has none or little important in the final result. The majors thresh contributions were ABS and Mag Thresh. Using ABS Thresh in Y direction, the result was worse then Binary S Channel approach.
 
-To improve the results, I cutted of some parts of the image after apply Sobel algorithm to help the to polynomial function discover the line lanes. The image was cutted near the paralel lane lines to increase the performance and discard some other information that can mislead the algorithm. The results is shown below.
+To improve the results above, I cutted of some parts of the image after apply Sobel algorithm to help the 2nd order polynomial function discovers the lane line. The image was cutted near the lane lines expected positions to increase the performance and discard some other information that can mislead the algorithm *(Pipeline line 26-28)*. The results is shown below.
 
 ![Sobel ROI][image10]
 
@@ -133,19 +133,19 @@ I did a polynomial function, the same as Udacity tutorial, and fit my lane lines
 
 ![Plot 2nd order polynomial][image11]
 
-Then I ploted the polynomial over the warped image *(Pipeline line 17)*.
+Then I ploted the polynomial over the warped image *(Pipeline line 32)*.
 
 ![Polynomial plot over warped image][image12]
 
-Next, I draw a green area inside the combination of my polynomial plot and my ROI *(Pipeline line 20-30)*.
+Next, I draw a green area inside the combination of my polynomial plot and my ROI *(Pipeline line 38-43)*.
 
 ![Green area over warped image][image13]
 
-Then, I unwarped the green area image and returned to the original image *(Pipeline line 32)*.
+Then, I unwarped the green area image and returned to the original image *(Pipeline line 46)*.
 
 ![Green area over unwarped image][image14]
 
-As it sees, in the last image, the unwarped procedure lost some data information. Then, I combine the unwarped green image with the original image and recovery some data out of my region of interest, making final output transform *(Pipeline line 35)*.
+As it sees, in the last image, the unwarped procedure lost some data information. Then, I combine the unwarped green image with the original image and recovery some data out of my region of interest (top of the image), making final output transform *(Pipeline line 49)*.
 
 ![Final output transform][image15]
 
@@ -153,7 +153,7 @@ As it sees, in the last image, the unwarped procedure lost some data information
 
 To calculate the curvature of the lane, I used the same model that was showed in the Udacity tutorial, with the conversion pixels to meters. The code was available in the `curvature()` function, in the *Calculate Curvature and Relative Positions Functions* subsection.
 
-The curvature was calculated using an intermediary image with the green area marked over. The I used Sobel transformation and did the 2nd order polynomial. To improve the result I chosed the left lane (constant) as the best to approach the result
+The curvature was calculated using an intermediary image with the green area marked over. Then I used Sobel transformation and did the 2nd order polynomial. To improve the result I chosed the left lane (constant) as the best to approach the result *(Curvature function lines 5-15 / Pipeline lines 51-60)*.
 
 To calculate the position of vehicle with respect to center, I pick I pixel inside the green area (over **y axis**) and the returned the value for **x axis** in the left and right curve. Then, I multiplied the value of the results by the constant of conversion pixels-meters, as shown in formula below: 
 
@@ -161,9 +161,7 @@ To calculate the position of vehicle with respect to center, I pick I pixel insi
 ((left_pos) - (1280-right_pos)) * xm_per_pix
 `
 
-The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection.
-
-The code calling for the both custom functions are available in the *Pipeline* function, lines 37-42.
+The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection *(Relative_position function line 18 / Pipeline lines 51-60)*.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
@@ -185,7 +183,7 @@ Here's a [link to my video result](./output_project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.
 
 ##### Development procedures and issues that I faced in my implementation
 
