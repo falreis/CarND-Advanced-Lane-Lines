@@ -17,11 +17,11 @@ The goals / steps of this project are the following:
 [image3]: ./writeup_files/calibrate_undistort.png "Calibrate and undistort image"
 [image4]: ./writeup_files/warped_cal.png "Calibration image warp"
 [image5]: ./writeup_files/undistort_image.png "Undistort and original image"
-[image6]: ./writeup_files/roi.png "Region of Interest (ROI) of the image"
+[image6]: ./writeup_files/warp_concatenate.png "S-Channel + Sobel (Left) and Sobel (Right)"
 [image7]: ./writeup_files/warp_image.png "Warp Image"
 [image8]: ./writeup_files/hsl.png "HSL Warp Image"
 [image9]: ./writeup_files/s_channel.png "Sobel and S-Channel Image"
-[image10]: ./writeup_files/warp_roi.png "Sobel ROI"
+[image10]: ./writeup_files/warp_roi.png "Warp ROI"
 [image11]: ./writeup_files/plot_continuous.png "Plot 2nd order polynomial"
 [image12]: ./writeup_files/polynomial_warp.png "Polynomial plot over warped image"
 [image13]: ./writeup_files/green_area_warped.png "Green area over warped image"
@@ -79,17 +79,17 @@ I proceded the code for my perspective transform includes a function called `war
 
 ```python
 vertices_src = np.float32(
-    [[ 120, 720],
-     [ 500, 500],
-     [ 700, 500],
-     [1200, 720]]
+    [[ 200, 680],
+     [ 350, 470],
+     [ 800, 470],
+     [1200, 680]]
 )
 
 vertices_dst = np.float32(
-    [[ 500, 720],
-     [ 500, 0],
-     [ 620, 0],
-     [ 660, 720]]
+    [[ 430, 700],
+     [ 0, 0],
+     [ 900, 0],
+     [ 850, 700]]
 )
 ```
 
@@ -97,10 +97,10 @@ This resulted in the following source and destination points.
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 120, 720      | 500, 720      | 
-| 500, 500      | 500, 0        |
-| 700, 500      | 620, 0        |
-| 1200, 720     | 660, 720      |
+| 200, 680      | 430, 700      | 
+| 350, 470      | 0, 0          |
+| 800, 470      | 900, 0        |
+| 1200, 680     | 850, 700      |
 
 I warped the original image, following the source and destination points *(Pipeline line 14)*:
 
@@ -112,20 +112,26 @@ I converted the image from RGB color space to HSL (hue, saturation, lightness) c
 
 ![HSL Warp Image][image8]
 
-To view the best result after apply a image filter, I tested two algorithms: Sobel and Binary S-Channel. In my first approach, I prefered to use Binary S-Channel, but the algorithm didn't find the line lanes correctly. Then I combined S-Channel with Sobel and the results were better, but not good enough. Then I tested Sobel algorihtm alone - this procedure had good results for different situations. The following image contain the comparison of S-Channel and Sobel algorithms.
+To view the best result after apply a image filter, I tested two algorithms: Sobel and Binary S-Channel. In my first approach, I prefered to use Binary S-Channel, but the algorithm didn't find the line lanes correctly. Then I combined S-Channel with Sobel and the results were better, mostly for the left lane. Then I tested Sobel algorihtm alone - this procedure had good results for different situations, and identify right lines better then S-Channel combined with Sobel. 
 
-![S-Channel and Sobel Image][image9]
-
-As Sobel algorithm returned better results, I kept it only *(Pipeline line 24)*. Sobel algorithm uses the following approachs:
+Sobel algorithm uses the following approachs:
 * Directional Thresh
 * Magnitude Thresh
 * ABS Thresh (X direction only)
 
 I tuned the parameters of Sobel algorithm to improve the results. The directional thresh has none or little important in the final result. The majors thresh contributions were ABS and Mag Thresh. Using ABS Thresh in Y direction, the result was worse then Binary S Channel approach.
 
+I decided to keep both algorihtms and use Sobel alone to identify the right lane. S-Channel + Sobel was used to identify the left lane. Here the example of both algorihtms and the result.
+
+![S-Channel and Sobel Image][image9]
+
+I divided the image in 2 parts and concatenate the left side (S-Channel+Sobel) with the right side (Sobel) and generated a image, as shown below.
+
+![S-Channel + Sobel (Left) and Sobel (Right)][image6]
+
 To improve the results above, I cutted of some parts of the image after apply Sobel algorithm to help the 2nd order polynomial function discovers the lane line. The image was cutted near the lane lines expected positions to increase the performance and discard some other information that can mislead the algorithm *(Pipeline line 26-28)*. The results is shown below.
 
-![Sobel ROI][image10]
+![Warp Region of Interests][image10]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
