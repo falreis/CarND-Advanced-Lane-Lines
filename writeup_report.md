@@ -69,13 +69,13 @@ The pipeline code is available in `pipeline()` function, in the *Pipeline* subse
 
 #### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one *(Pipeline line 11)*:
+To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one *(Pipeline line 34)*:
 ![Undistort and original image][image5]
 
 #### 2. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
 I proceded the code for my perspective transform includes a function called `warp_transform()`, which appears in the section *Warp Transform Functions*
-(output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warp_transform()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner *(Warp transform subsection - line 1-13)*:
+(output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warp_transform()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner *(Warp transform subsection - line 4-16)*:
 
 ```python
 vertices_src = np.float32(
@@ -102,13 +102,13 @@ This resulted in the following source and destination points.
 | 800, 470      | 900, 0        |
 | 1200, 680     | 850, 700      |
 
-I warped the original image, following the source and destination points *(Pipeline line 14)*:
+I warped the original image, following the source and destination points *(Pipeline line 37)*:
 
 ![Warp Image][image7]
 
 #### 3. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I converted the image from RGB color space to HSL (hue, saturation, lightness) color space *(Pipeline line 17)*.
+I converted the image from RGB color space to HSL (hue, saturation, lightness) color space *(Pipeline line 40)*.
 
 ![HSL Warp Image][image8]
 
@@ -121,15 +121,15 @@ Sobel algorithm uses the following approachs:
 
 I tuned the parameters of Sobel algorithm to improve the results. The directional thresh has none or little important in the final result. The majors thresh contributions were ABS and Mag Thresh. Using ABS Thresh in Y direction, the result was worse then Binary S Channel approach.
 
-I decided to keep both algorihtms and use Sobel alone to identify the right lane. S-Channel + Sobel was used to identify the left lane. Here the example of both algorihtms and the result.
+I decided to keep both algorihtms and use Sobel alone to identify the right lane. S-Channel + Sobel was used to identify the left lane. Here the example of both algorihtms and the result *(Pipeline lines 43-45)*.
 
 ![S-Channel and Sobel Image][image9]
 
-I divided the image in 2 parts and concatenate the left side (S-Channel+Sobel) with the right side (Sobel) and generated a image, as shown below.
+I divided the image in 2 parts and concatenate the left side (S-Channel+Sobel) with the right side (Sobel) and generated a image, as shown below *(Pipeline line 45)*.
 
 ![S-Channel + Sobel (Left) and Sobel (Right)][image6]
 
-To improve the results above, I cutted of some parts of the image after apply Sobel algorithm to help the 2nd order polynomial function discovers the lane line. The image was cutted near the lane lines expected positions to increase the performance and discard some other information that can mislead the algorithm *(Pipeline line 26-28)*. The results is shown below.
+To improve the results above, I cutted of some parts of the image after apply Sobel algorithm to help the 2nd order polynomial function discovers the lane line. The image was cutted near the lane lines expected positions to increase the performance and discard some other information that can mislead the algorithm *(Pipeline line 49-50)*. The results is shown below.
 
 ![Warp Region of Interests][image10]
 
@@ -139,35 +139,39 @@ I did a polynomial function, the same as Udacity tutorial, and fit my lane lines
 
 ![Plot 2nd order polynomial][image11]
 
-Then I ploted the polynomial over the warped image *(Pipeline line 32)*.
+Then I ploted the polynomial over the warped image *(Pipeline lines 53-57)*.
 
 ![Polynomial plot over warped image][image12]
 
-Next, I draw a green area inside the combination of my polynomial plot and my ROI *(Pipeline line 38-43)*.
+Next, I draw a green area inside the combination of my polynomial plot and my ROI *(Pipeline line 78-86)*.
 
 ![Green area over warped image][image13]
 
-Then, I unwarped the green area image and returned to the original image *(Pipeline line 46)*.
+Then, I unwarped the green area image and returned to the original image *(Pipeline line 89)*.
 
 ![Green area over unwarped image][image14]
 
-As it sees, in the last image, the unwarped procedure lost some data information. Then, I combine the unwarped green image with the original image and recovery some data out of my region of interest (top of the image), making final output transform *(Pipeline line 49)*.
+As it sees, in the last image, the unwarped procedure lost some data information. Then, I combine the unwarped green image with the original image and recovery some data out of my region of interest (top of the image), making final output transform *(Pipeline lines 92-93)*.
 
 ![Final output transform][image15]
+
+As an aditional feature to improve performance, I calculate the 2nd order polynomial with sliding widows only to some frames. I calculate the position and keep it in memory. To the next frames, I search near the position of the frame saved. With this, the algorithm increase performance. After an amount of frames, 10 frames for example, I run sliding window procedure again to keep on track and renew the save position *(Pipeline lines 53-57)*.
+
+Other improvement is to store the last found lane inside a variable. If the algorithm was unable to find the lane in the current frame, it uses the last one to keep in track. This solution keeps the stability of the algorithm *(Pipeline lines 60-75)*.
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
 To calculate the curvature of the lane, I used the same model that was showed in the Udacity tutorial, with the conversion pixels to meters. The code was available in the `curvature()` function, in the *Calculate Curvature and Relative Positions Functions* subsection.
 
-The curvature was calculated using an intermediary image with the green area marked over. Then I used Sobel transformation and did the 2nd order polynomial. To improve the result I chosed the left lane (constant) as the best to approach the result *(Curvature function lines 5-15 / Pipeline lines 51-60)*.
+The curvature was calculated using an intermediary image with the green area marked over. Then I used Sobel transformation and did the 2nd order polynomial. To improve the result I chosed the left lane (constant) as the best to approach the result *(Curvature function lines 8-18 / Pipeline lines 96-108)*.
 
-To calculate the position of vehicle with respect to center, I pick I pixel inside the green area (over **y axis**) and the returned the value for **x axis** in the left and right curve. Then, I multiplied the value of the results by the constant of conversion pixels-meters, as shown in formula below: 
+To calculate the position of vehicle with respect to center, I pick I pixel in the side of the green area, near the car, (over **y axis**) and the returned the value for **x axis** in the left and right curve. I also divided the image in 2 parts, the left and the right. I also multiplied the value of the results by the constant of conversion pixels-meters, as shown in formula below: 
 
 `
-((left_pos) - (1280-right_pos)) * xm_per_pix
+ ((IMAGE_WIDTH/2 - left_pos) - (right_pos - IMAGE_WIDTH/2)) * xm_per_pix
 `
 
-The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection *(Relative_position function line 18 / Pipeline lines 51-60)*.
+The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection *(Relative_position function lines 21-24 / Pipeline lines 103-108)*.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
@@ -210,6 +214,7 @@ This section contain different approachs that I used but didn't result in correc
 	* Crop ROI before applied Sobel;
 	* Do not convert to HSL (combined with all above);
 	* Other approachs mixing all above.
+	* Clahe algorithm
 
 ##### Development procedures and problems in development
 The major problem was to process image and remove the noise. I used many approachs as explain in the last section. Some approachs results in closer results and tunning operations cause lot of time spent. I tunned many of aproachs described until I realized that I can't improve the results anymore. These wrong approachs consume most of the development time (many, many, many time).
