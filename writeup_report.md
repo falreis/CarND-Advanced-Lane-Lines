@@ -123,9 +123,7 @@ I merge both images and generated combined image, as shown below *(Pipeline line
 
 ![Combined Image][image6]
 
-To avoid processing and mistakes, I cutted some parts of the image after apply Binary S-Channel algorithm. The image was cutted near the lane lines expected positions to increase the processing performance *(Pipeline line 35-36)*. The results is shown below.
-
-![Warp Region of Interests][image10]
+To avoid processing and mistakes, I cutted some parts of the image after apply Binary S-Channel algorithm. The image was cutted near the lane lines expected positions to increase the processing performance *(Pipeline line 35-36)*. 
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
