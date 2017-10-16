@@ -160,10 +160,17 @@ The curvature was calculated using the curvature for the warped image. The const
 To calculate the position of vehicle with respect to center, I pick I pixel in the side of the green area, near the car, (over **y axis**) and the returned the value for **x axis** in the left and right curve. I also divided the image in 2 parts, the left and the right. I also multiplied the value of the results by the constant of conversion pixels-meters, as shown in formula below: 
 
 `
- ((IMAGE_WIDTH/2 - left_pos) - (right_pos - IMAGE_WIDTH/2)) * xm_per_pix
+  (IMAGE_WIDTH - (left_pos + right_pos)) * xm_per_pix
 `
 
 The code is available in the function `relative_position`, in the *Calculate Curvature and Relative Positions Functions* subsection *(Relative_position function lines 21-24 / Pipeline line 99)*.
+
+##### Note
+As the image used in the pipeline has size of 1280x720, the values returned from the 2nd order polynomial for x axis are inside the range 0-1280. If the algorithm returns a point in the left lane, it's X axis will be 600 (for example) not 0. The right lane will return 850 (for example) not 250.
+
+If the algorihtm doesn't use range of 0-1280, it will be necessary to normalize the values to calculare the curvature and the relative position.
+
+In previous development versions, I used an unwarped image to find and mesure the curvatures. The size in this previous version was relative to the size of the lane at the position of the axis y=650 (about 700 pixels).
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
